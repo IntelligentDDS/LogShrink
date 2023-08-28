@@ -1,0 +1,5 @@
+2023-01-10 10:07:37,737 - Error Occur at: Spark_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:37,776 - thread:LR__0, type:Spark_2k, fileNo: 0 to 0 , cost time: 0.04891180992126465
+2023-01-10 10:07:37,776 - ./compress_output/Spark_2k.tar.lr/ finished, total time cost: 0.06377291679382324 , thread accum time: 0.04891180992126465
+2023-01-10 10:07:37,777 - Type:../../test_logs/Spark_2k.log, In_OutSize: 189.715 _ 0.356 Kb, Rate: 532.241 , InFilePath:../../test_logs/Spark_2k_Segment/, OutFilePath:./compress_output/Spark_2k.tar.lr/
+2023-01-10 10:07:37,777 - ./compress_output/Spark_2k.tar.lr/ Main finished, total time cost: 0.07993412017822266 , error num: 1

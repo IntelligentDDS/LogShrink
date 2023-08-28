@@ -1,0 +1,37 @@
+[0]
+<*>: authentication failure; logname= uid=<*> euid=<*> tty=NODEVssh ruser= rhost=<*>
+[1]
+<*>: check pass; user unknown
+[2]
+<*>: authentication failure; logname= uid=<*> euid=<*> tty=NODEVssh ruser= rhost=<*>  user=<*>
+[3]
+<*>: session opened for user <*> by (uid=<*>
+[4]
+<*>: session closed for user <*>
+[5]
+logrotate: ALERT exited abnormally with [1]
+[6]
+<*>: connection from <*> <*> at <*> <*> <*> <*>:<*>:<*> <*>
+[7]
+cups: cupsd <*> succeeded
+[9]
+syslogd 1.4.1: restart.
+[10]
+<*>: Authentication failed from <*> (163.27.187.39): Permission denied in replay cache code
+[12]
+<*>: Kerberos authentication failed
+[13]
+<*>: Authentication failed from <*> (163.27.187.39): Software caused connection abort
+[14]
+<*>: connection from <*> <*> at <*> Jul  <*> <*>:<*>:<*> <*>
+[15]
+<*>: removing device node <*>
+[16]
+<*>: creating device node <*>
+[17]
+named[2306]: notify question section contains no SOA
+[18]
+<*>: getpeername (ftpd): Transport endpoint is not connected
+[19]
+<*>: warning: can't get client address: Connection reset by peer
+[20]

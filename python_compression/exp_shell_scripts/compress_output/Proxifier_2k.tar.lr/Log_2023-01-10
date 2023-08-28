@@ -1,0 +1,5 @@
+2023-01-10 10:07:36,654 - Error Occur at: Proxifier_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:36,691 - thread:LR__0, type:Proxifier_2k, fileNo: 0 to 0 , cost time: 0.04767107963562012
+2023-01-10 10:07:36,692 - ./compress_output/Proxifier_2k.tar.lr/ finished, total time cost: 0.06207084655761719 , thread accum time: 0.04767107963562012
+2023-01-10 10:07:36,692 - Type:../../test_logs/Proxifier_2k.log, In_OutSize: 231.379 _ 0.368 Kb, Rate: 628.467 , InFilePath:../../test_logs/Proxifier_2k_Segment/, OutFilePath:./compress_output/Proxifier_2k.tar.lr/
+2023-01-10 10:07:36,692 - ./compress_output/Proxifier_2k.tar.lr/ Main finished, total time cost: 0.06465530395507812 , error num: 1

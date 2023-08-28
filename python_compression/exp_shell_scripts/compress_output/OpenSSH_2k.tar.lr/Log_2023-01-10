@@ -1,0 +1,5 @@
+2023-01-10 10:07:34,435 - Error Occur at: OpenSSH_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:34,476 - thread:LR__0, type:OpenSSH_2k, fileNo: 0 to 0 , cost time: 0.053128957748413086
+2023-01-10 10:07:34,477 - ./compress_output/OpenSSH_2k.tar.lr/ finished, total time cost: 0.06969022750854492 , thread accum time: 0.053128957748413086
+2023-01-10 10:07:34,478 - Type:../../test_logs/OpenSSH_2k.log, In_OutSize: 217.871 _ 0.364 Kb, Rate: 598.123 , InFilePath:../../test_logs/OpenSSH_2k_Segment/, OutFilePath:./compress_output/OpenSSH_2k.tar.lr/
+2023-01-10 10:07:34,478 - ./compress_output/OpenSSH_2k.tar.lr/ Main finished, total time cost: 0.0723867416381836 , error num: 1

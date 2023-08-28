@@ -1,0 +1,11 @@
+hdbscan==0.8.29
+matplotlib==3.5.1
+numpy==1.21.5
+pandas==1.4.2
+projects==1.0.9
+python_Levenshtein==0.20.9
+scikit_learn==1.2.2
+scipy==1.7.3
+seaborn==0.11.2
+textdistance==4.2.1
+tqdm==4.64.0

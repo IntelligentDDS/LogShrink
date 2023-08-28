@@ -1,0 +1,5 @@
+2023-01-10 10:07:25,408 - Error Occur at: Windows_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:25,455 - thread:LR__0, type:Windows_2k, fileNo: 0 to 0 , cost time: 0.05928230285644531
+2023-01-10 10:07:25,456 - ./compress_output/Windows_2k.tar.lr/ finished, total time cost: 0.07521820068359375 , thread accum time: 0.05928230285644531
+2023-01-10 10:07:25,457 - Type:../../test_logs/Windows_2k.log, In_OutSize: 276.792 _ 0.362 Kb, Rate: 763.976 , InFilePath:../../test_logs/Windows_2k_Segment/, OutFilePath:./compress_output/Windows_2k.tar.lr/
+2023-01-10 10:07:25,457 - ./compress_output/Windows_2k.tar.lr/ Main finished, total time cost: 0.07816123962402344 , error num: 1

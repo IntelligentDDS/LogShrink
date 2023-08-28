@@ -1,0 +1,5 @@
+2023-01-10 10:07:28,827 - Error Occur at: HPC_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:28,870 - thread:LR__0, type:HPC_2k, fileNo: 0 to 0 , cost time: 0.052857160568237305
+2023-01-10 10:07:28,870 - ./compress_output/HPC_2k.tar.lr/ finished, total time cost: 0.06924581527709961 , thread accum time: 0.052857160568237305
+2023-01-10 10:07:28,871 - Type:../../test_logs/HPC_2k.log, In_OutSize: 145.682 _ 0.353 Kb, Rate: 413.235 , InFilePath:../../test_logs/HPC_2k_Segment/, OutFilePath:./compress_output/HPC_2k.tar.lr/
+2023-01-10 10:07:28,871 - ./compress_output/HPC_2k.tar.lr/ Main finished, total time cost: 0.0718848705291748 , error num: 1

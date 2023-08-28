@@ -1,0 +1,5 @@
+2023-01-10 10:07:31,627 - Error Occur at: Mac_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:31,667 - thread:LR__0, type:Mac_2k, fileNo: 0 to 0 , cost time: 0.05482602119445801
+2023-01-10 10:07:31,667 - ./compress_output/Mac_2k.tar.lr/ finished, total time cost: 0.0737617015838623 , thread accum time: 0.05482602119445801
+2023-01-10 10:07:31,668 - Type:../../test_logs/Mac_2k.log, In_OutSize: 309.977 _ 0.35 Kb, Rate: 886.637 , InFilePath:../../test_logs/Mac_2k_Segment/, OutFilePath:./compress_output/Mac_2k.tar.lr/
+2023-01-10 10:07:31,668 - ./compress_output/Mac_2k.tar.lr/ Main finished, total time cost: 0.07660794258117676 , error num: 1

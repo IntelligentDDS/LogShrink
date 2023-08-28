@@ -1,0 +1,5 @@
+2023-01-10 10:07:32,625 - Error Occur at: Thunderbird_2k thread: LR__0, fileNo: 0 to 0
+2023-01-10 10:07:32,663 - thread:LR__0, type:Thunderbird_2k, fileNo: 0 to 0 , cost time: 0.04945516586303711
+2023-01-10 10:07:32,663 - ./compress_output/Thunderbird_2k.tar.lr/ finished, total time cost: 0.06454610824584961 , thread accum time: 0.04945516586303711
+2023-01-10 10:07:32,664 - Type:../../test_logs/Thunderbird_2k.log, In_OutSize: 315.619 _ 0.374 Kb, Rate: 843.849 , InFilePath:../../test_logs/Thunderbird_2k_Segment/, OutFilePath:./compress_output/Thunderbird_2k.tar.lr/
+2023-01-10 10:07:32,664 - ./compress_output/Thunderbird_2k.tar.lr/ Main finished, total time cost: 0.06772994995117188 , error num: 1
