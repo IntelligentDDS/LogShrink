@@ -9,7 +9,7 @@ By Xiaoyun Li, Hongyu Zhang, Van-Hoang Le, Pengfei Chen
 ### Abstract
 As systems grow in scale, log data generation has become increasingly explosive, leading to an expensive overhead on log storage, such as several petabytes per day in production. To address this issue, log compression has become a crucial task in reducing disk storage while allowing for further log analysis. Based on these observations, we propose LogShrink, a novel and effective log compression method by leveraging commonality and variability of log data. 
 
-![The overview of LogShrink](./figures/framework.pdf)
+![The overview of LogShrink](https://github.com/IntelligentDDS/LogShrink/blob/main/figures/framework.jpg)
 
 ### Dataset
 We use 16 representative log datasets from [loghub](https://zenodo.org/record/3227177).The details of the dataset is shown as belows:
