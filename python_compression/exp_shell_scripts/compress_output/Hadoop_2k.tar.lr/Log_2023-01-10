@@ -1,5 +1,0 @@
-2023-01-10 10:07:27,996 - Error Occur at: Hadoop_2k thread: LR__0, fileNo: 0 to 0
-2023-01-10 10:07:28,034 - thread:LR__0, type:Hadoop_2k, fileNo: 0 to 0 , cost time: 0.04912686347961426
-2023-01-10 10:07:28,035 - ./compress_output/Hadoop_2k.tar.lr/ finished, total time cost: 0.06501007080078125 , thread accum time: 0.04912686347961426
-2023-01-10 10:07:28,035 - Type:../../test_logs/Hadoop_2k.log, In_OutSize: 373.831 _ 0.359 Kb, Rate: 1040.226 , InFilePath:../../test_logs/Hadoop_2k_Segment/, OutFilePath:./compress_output/Hadoop_2k.tar.lr/
-2023-01-10 10:07:28,035 - ./compress_output/Hadoop_2k.tar.lr/ Main finished, total time cost: 0.06789302825927734 , error num: 1

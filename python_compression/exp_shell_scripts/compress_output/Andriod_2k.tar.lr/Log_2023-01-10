@@ -1,5 +1,0 @@
-2023-01-10 10:07:26,669 - Error Occur at: Andriod_2k thread: LR__0, fileNo: 0 to 0
-2023-01-10 10:07:26,711 - thread:LR__0, type:Andriod_2k, fileNo: 0 to 0 , cost time: 0.05336117744445801
-2023-01-10 10:07:26,712 - ./compress_output/Andriod_2k.tar.lr/ finished, total time cost: 0.06697988510131836 , thread accum time: 0.05336117744445801
-2023-01-10 10:07:26,713 - Type:../../test_logs/Andriod_2k.log, In_OutSize: 270.559 _ 0.362 Kb, Rate: 746.771 , InFilePath:../../test_logs/Andriod_2k_Segment/, OutFilePath:./compress_output/Andriod_2k.tar.lr/
-2023-01-10 10:07:26,713 - ./compress_output/Andriod_2k.tar.lr/ Main finished, total time cost: 0.06979489326477051 , error num: 1

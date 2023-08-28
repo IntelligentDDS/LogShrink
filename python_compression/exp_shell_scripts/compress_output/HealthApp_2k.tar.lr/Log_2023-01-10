@@ -1,5 +1,0 @@
-2023-01-10 10:07:21,841 - Error Occur at: HealthApp_2k thread: LR__0, fileNo: 0 to 0
-2023-01-10 10:07:22,369 - thread:LR__0, type:HealthApp_2k, fileNo: 0 to 0 , cost time: 0.5383868217468262
-2023-01-10 10:07:22,370 - ./compress_output/HealthApp_2k.tar.lr/ finished, total time cost: 0.553278923034668 , thread accum time: 0.5383868217468262
-2023-01-10 10:07:22,370 - Type:../../test_logs/HealthApp_2k.log, In_OutSize: 181.109 _ 0.364 Kb, Rate: 497.201 , InFilePath:../../test_logs/HealthApp_2k_Segment/, OutFilePath:./compress_output/HealthApp_2k.tar.lr/
-2023-01-10 10:07:22,370 - ./compress_output/HealthApp_2k.tar.lr/ Main finished, total time cost: 0.5558478832244873 , error num: 1

@@ -1,5 +1,0 @@
-2023-01-10 10:07:29,627 - Error Occur at: Apache_2k thread: LR__0, fileNo: 0 to 0
-2023-01-10 10:07:29,666 - thread:LR__0, type:Apache_2k, fileNo: 0 to 0 , cost time: 0.04937887191772461
-2023-01-10 10:07:29,667 - ./compress_output/Apache_2k.tar.lr/ finished, total time cost: 0.06547784805297852 , thread accum time: 0.04937887191772461
-2023-01-10 10:07:29,667 - Type:../../test_logs/Apache_2k.log, In_OutSize: 165.274 _ 0.359 Kb, Rate: 459.894 , InFilePath:../../test_logs/Apache_2k_Segment/, OutFilePath:./compress_output/Apache_2k.tar.lr/
-2023-01-10 10:07:29,668 - ./compress_output/Apache_2k.tar.lr/ Main finished, total time cost: 0.06792688369750977 , error num: 1

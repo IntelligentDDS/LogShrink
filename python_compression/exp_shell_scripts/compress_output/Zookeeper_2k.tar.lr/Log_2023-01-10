@@ -1,5 +1,0 @@
-2023-01-10 10:07:33,573 - Error Occur at: Zookeeper_2k thread: LR__0, fileNo: 0 to 0
-2023-01-10 10:07:33,612 - thread:LR__0, type:Zookeeper_2k, fileNo: 0 to 0 , cost time: 0.04827690124511719
-2023-01-10 10:07:33,613 - ./compress_output/Zookeeper_2k.tar.lr/ finished, total time cost: 0.06350898742675781 , thread accum time: 0.04827690124511719
-2023-01-10 10:07:33,613 - Type:../../test_logs/Zookeeper_2k.log, In_OutSize: 271.095 _ 0.368 Kb, Rate: 736.342 , InFilePath:../../test_logs/Zookeeper_2k_Segment/, OutFilePath:./compress_output/Zookeeper_2k.tar.lr/
-2023-01-10 10:07:33,613 - ./compress_output/Zookeeper_2k.tar.lr/ Main finished, total time cost: 0.06626391410827637 , error num: 1
