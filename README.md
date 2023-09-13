@@ -1,5 +1,4 @@
-# LogShrink: Effective Log Compression Tool
-**Under Construction!!!**
+# LogShrink: An Effective Log Compression Tool
 
 The repository is the implementation of paper in ICSE 2024 (early) "LogShrink: Effective Log Compression by Leveraging Commonality and Variability of Log Data".
 
@@ -7,7 +6,7 @@ By Xiaoyun Li, Hongyu Zhang, Van-Hoang Le, Pengfei Chen
 
 
 ### Abstract
-As systems grow in scale, log data generation has become increasingly explosive, leading to an expensive overhead on log storage, such as several petabytes per day in production. To address this issue, log compression has become a crucial task in reducing disk storage while allowing for further log analysis. Based on these observations, we propose LogShrink, a novel and effective log compression method by leveraging commonality and variability of log data. 
+As systems grow in scale, log data generation has become increasingly explosive, leading to an expensive overhead on log storage, such as several petabytes per day in production. To address this issue, log compression has become a crucial task in reducing disk storage while allowing for further log analysis. We have conducted the empirical study on the characteristics of log data and obtained three major observations. Based on these observations, we propose LogShrink, a novel and effective log compression method by leveraging commonality and variability of log data. Please refer to the paper for more details.
 
 ![The overview of LogShrink](https://github.com/IntelligentDDS/LogShrink/blob/main/figures/framework.jpg)
 
@@ -68,7 +67,7 @@ python3 decompression_run.py -h
 
 
 ### Experimental Results
-We show the overall performance of LogShrink and our ablation studies on clustering based sequence sampler and analyzer here.
+We show the overall performance of LogShrink here.
 #### The overall compression ratio of LogShrink
 
 |   dataset   |  gzip  |  lzma   | zstd    | bzip2  | logzip  | LogReducer | LogShrink |
