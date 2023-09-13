@@ -10,9 +10,11 @@ from tqdm import tqdm
 import pickle
 import shutil
 import tarfile
+import json
 from io import BytesIO
 sys.path.append("../")
 from LogMeta import LogMeta
+from subprocess import call
 
 
 
@@ -22,11 +24,6 @@ def compress(log_meta, relations: list,
                  encode_mode: str, 
                  column_mode: str, 
                  var_min: bool,
-                 EE: bool,
-                 EH: bool,
-                 EV: bool,
-                 HH: bool,
-                 VV: bool,
                  kernel='lzma'
                  ):
     print("Compressing all files, including base, diff, id, and var list")
@@ -36,11 +33,11 @@ def compress(log_meta, relations: list,
     
 
     if var_min:
-        output_relation(relations, outdir=outdir, outfile="relations", encode_mode=encode_mode)
+        output_relation(relations, outdir=outdir, outfile="relations", encode_mode=encode_mode, mapping=log_meta.mapping)
 
     output_eids(log_meta.ori_eids, outdir=outdir, outfile="eids", encode_mode=encode_mode, column_mode=column_mode)
     output_var_list_bin(log_meta.eids, log_meta.param_list, log_meta.num_col, relations=relations, outdir=outdir, outfile="var_list", 
-                            suffix=".var", encode_mode=encode_mode, column_mode=column_mode)
+                            suffix=".var", encode_mode=encode_mode, column_mode=column_mode, mapping=log_meta.mapping)
     output_dict(log_meta.header_dict, outdir, "header")
     
     output_dict(log_meta.var_dict, outdir, "var")
@@ -72,37 +69,47 @@ def packer(kernel='lzma', outdir=None, outfile=""):
             tar.add(os.path.join(outdir, f), arcname=os.path.basename(f))
         tar.close()     
 
-def output_relation(relations: dict, outdir: str, outfile: str, encode_mode: str="E"):
+def output_relation(relations: dict, outdir: str, outfile: str, encode_mode: str="E", mapping: dict=None):
     with open(os.path.join(outdir, outfile + '.hdiff'), 'w') as file:
         int_array_writer(file, relations['hdiff'])
     with open(os.path.join(outdir, outfile + '.hdict'), 'w') as file:
         int_array_writer(file, relations['hdict'])
         
+    # reversing the relations index to original index
+    new_res = {}
+    for k, v in relations['pdiff'].items():
+        new_res[mapping[k]] = v
     with open(os.path.join(outdir, outfile + '.pdiff'), 'w') as file:
-        file.write("{}".format(relations['pdiff']))
+        file.write(json.dumps(new_res))
+    
+    new_res = {}
+    for k, v in relations['pdict'].items():
+        new_res[mapping[k]] = v.tolist()
     with open(os.path.join(outdir, outfile + '.pdict'), 'w') as file:
-        file.write("{}".format(relations['pdict']))
+        file.write(json.dumps(new_res))
+
+    new_res = {}
+    for k, v in relations['v_pat'].items():
+        new_res[mapping[k]] = v
+    with open(os.path.join(outdir, outfile + '.v_pat'), 'w') as file:
+        file.write(json.dumps(new_res))
 
     with open(os.path.join(outdir, outfile + '.h_pat'), 'w') as file:
-        file.write("{}".format(relations['h_pat']))
-    with open(os.path.join(outdir, outfile + '.p_pat'), 'w') as file:
-        file.write("{}".format(relations['v_pat']))
-        
+        file.write(json.dumps(relations['h_pat']))
         
 def output_csv(arr_list: np.array, num_col, relations, outdir: str, outfile: str, encode_mode: str='E', column_mode: bool=True):
     # turn all int into bytes
-    # import pdb; pdb.set_trace()
     if column_mode:
         for i, arr in enumerate(arr_list):
             if i in relations['hdiff']:
                 with open(os.path.join(outdir, outfile + str(i) + ".diff"), get_filemode(encode_mode)) as file:
-                    int_array_writer(file, arr.astype(int), encode_mode=encode_mode)
+                    int_array_writer_lr(file, arr.astype(int), encode_mode=encode_mode)
             elif i in relations['hdict']:
                 with open(os.path.join(outdir, outfile + str(i) + ".var_dict"), get_filemode(encode_mode)) as file:
-                    int_array_writer(file, arr.astype(int), encode_mode=encode_mode)
+                    int_array_writer_lr(file, arr.astype(int), encode_mode=encode_mode)
             elif i in num_col:
                 with open(os.path.join(outdir, outfile + str(i) + ".dat"), get_filemode(encode_mode)) as file:
-                    int_array_writer(file, arr.astype(int), encode_mode=encode_mode)
+                    int_array_writer_lr(file, arr.astype(int), encode_mode=encode_mode)
             else:
                 with open(os.path.join(outdir, outfile + str(i) + ".str"), 'w') as file:
                     string_writer(file, arr)
@@ -112,14 +119,14 @@ def output_csv(arr_list: np.array, num_col, relations, outdir: str, outfile: str
             for i, arr in arr_list.items():
                 if len(arr) > 0:
                     if type(arr[0]) is np.int64:
-                        int_array_writer(file, arr, encode_mode)
+                        int_array_writer_lr(file, arr, encode_mode)
                     else:
                         string_writer(file, arr)
 
 
 def output_eids(arr_list: pd.Series, outdir: str, outfile: str, encode_mode: str="E", column_mode: bool=True):
     with open(os.path.join(outdir, outfile + ".eid"), get_filemode(encode_mode)) as file:
-        int_array_writer(file, arr_list, encode_mode)
+        int_array_writer_lr(file, arr_list, encode_mode)
     
 def string_writer(file, arr_list):
     for j in range(len(arr_list)):
@@ -128,54 +135,67 @@ def string_writer(file, arr_list):
 
 def int_array_writer(file, arr_list, encode_mode='NE', diff=False):
     base = 0
+    int_writer(file, len(arr_list), encode_mode)
     for j in range(len(arr_list)):
         to_write = arr_list[j]
         if diff:
             to_write = arr_list[j] - base
             base = arr_list[j]
         int_writer(file, to_write, encode_mode)
+        
+def int_array_writer_lr(file, arr_list, encode_mode='NE', diff=False):
+    filename = file.name
+    new_path = filename + '.ee'
+    for j in range(len(arr_list)):
+        to_write = arr_list[j]
+        int_writer(file, to_write, 'NE')
+    file.close()
+    if encode_mode == 'E':
+        res = call("parser/Elastic e " + filename + " " + new_path + " z", shell=True)    
+        if res == 0:
+            call("rm " + filename, shell=True)
+    
             
 def int_writer(file, num, encode_mode):
+    if type(num) == np.int64:
+        num = num.item()
     # elastic encoding
     if encode_mode == 'E':
-        if type(num) == np.int64:
-            num = num.item()
         file.write(elastic_encoder(num))
     else:
         file.write("%d\n"%num)
         
 def get_filemode(encode_mode: str):
-    if encode_mode == 'NE':
-        file_mode = 'w'
-    else:
-        file_mode = 'wb'
+    # if encode_mode == 'NE':
+    #     file_mode = 'w'
+    # else:
+    #     file_mode = 'wb'
+    file_mode = 'w'
     return file_mode
-        
-    
     
 
-def output_var_list_bin(eids, var, num_col, relations, outdir, outfile, suffix, encode_mode='E', column_mode=True):
+def output_var_list_bin(eids, var, num_col, relations, outdir, outfile, suffix, encode_mode='E', mapping={}, column_mode=True):
     # TODO: too many hardcodes
     # log message parameter list
     if column_mode:
         for eid, arr_list in var.items():
             for i in range(len(arr_list)):
                 if eid in relations['pdiff'] and i in relations['pdiff'][eid]:
-                    with open(os.path.join(outdir, outfile + "_E" + str(eid) + "_" + str(i) + ".diff"), get_filemode(encode_mode)) as file:
-                        int_array_writer(file, arr_list[i].astype(int), encode_mode=encode_mode)
+                    with open(os.path.join(outdir, outfile + "_E" + str(mapping[eid]) + "_" + str(i) + ".diff"), get_filemode(encode_mode)) as file:
+                        int_array_writer_lr(file, arr_list[i].astype(int), encode_mode=encode_mode)
                 elif eid in relations['pdict'] and i in relations['pdict'][eid]:
-                    with open(os.path.join(outdir, outfile + "_E" + str(eid) + "_" + str(i) +".var_dict"), get_filemode(encode_mode)) as file:
-                        int_array_writer(file, arr_list[i].astype(int), encode_mode=encode_mode)
+                    with open(os.path.join(outdir, outfile + "_E" + str(mapping[eid]) + "_" + str(i) +".var_dict"), get_filemode(encode_mode)) as file:
+                        int_array_writer_lr(file, arr_list[i].astype(int), encode_mode=encode_mode)
                 elif eid in num_col and i in num_col[eid]:
-                    with open(os.path.join(outdir, outfile + "_E" + str(eid) + "_" + str(i) +".dat"), get_filemode(encode_mode)) as file:
-                        int_array_writer(file, arr_list[i].astype(int), encode_mode=encode_mode)
+                    with open(os.path.join(outdir, outfile + "_E" + str(mapping[eid]) + "_" + str(i) +".dat"), get_filemode(encode_mode)) as file:
+                        int_array_writer_lr(file, arr_list[i].astype(int), encode_mode=encode_mode)
                 else:
-                    with open(os.path.join(outdir, outfile + "_E" + str(eid) + "_" + str(i) +".str"), 'w') as file:
+                    with open(os.path.join(outdir, outfile + "_E" + str(mapping[eid]) + "_" + str(i) +".str"), 'w') as file:
                         string_writer(file, arr_list[i])
 
     else:
         for eid, arr_list in var.items():
-            with open(os.path.join(outdir, outfile + "_E" + str(eid) + suffix), get_filemode(encode_mode)) as file:
+            with open(os.path.join(outdir, outfile + "_E" + str(mapping[eid]) + suffix), get_filemode(encode_mode)) as file:
                 for arr in arr_list.T:
                     file.write("{}\n".format(arr.join(",")))
 
@@ -191,30 +211,6 @@ def string_encoder(data, file, column_mode=True):
                 file.write("{}\n".format(c))
 
         
-def output_var_list_column( var, outdir, outfile, suffix, encode_mode='E', column_mode=True, 
-                        dict_column_mode=True, diff=True):
-    # TODO: too many hardcodes
-    # log message parameter list
-    if column_mode == 1:
-        for eid, arr_list in var.items():
-            with open(os.path.join(outdir, outfile + "_E" + str(eid) + suffix), get_filemode(encode_mode)) as file:
-                for arr in arr_list:
-                    for i in arr:
-                        file.write("{}\n".format(i))
-                    
-    elif column_mode == 2:
-        for eid, arr_list in var.items():
-            with open(os.path.join(outdir, outfile + "_E" + str(eid) + suffix), get_filemode(encode_mode)) as file:
-                for arr in arr_list.T:
-                    file.write("{}\n".format("".join(arr.tolist())))
-    else:
-        for eid, arr_list in var.items():
-            for i in range(len(arr_list)):
-                with open(os.path.join(outdir, outfile + "_E" + str(eid) + "_" + str(i) + suffix), get_filemode(encode_mode)) as file:
-                    for item in arr_list[i]:
-                        file.write("{}\n".format(item))
-
-                
 def zigzag_encoder(num: int):
     return (num << 1) ^ (num >> 31)
 
@@ -223,18 +219,17 @@ def zigzag_decoder(num: int):
     return (num >> 1) ^ -(num & 1)
 
 
-
 def elastic_encoder(num: int):
     # TODO: there're some bugs in elastic encoder
     buffer = b''
     cur = zigzag_encoder(num)
     for i in range(4):
         if (cur & (~0x7f)) == 0:
-            buffer += cur.to_bytes(1, "big")
+            buffer += cur.to_bytes(1, "little")
             # ret = i + 1
             break
         else:
-            buffer += ((cur & 0x7f) | 0x80).to_bytes(1, 'big')
+            buffer += ((cur & 0x7f) | 0x80).to_bytes(1, 'little')
             cur = cur >> 7
     return buffer
 

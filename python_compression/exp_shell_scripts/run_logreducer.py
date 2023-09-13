@@ -65,5 +65,5 @@ if __name__ == '__main__':
     final_results = pd.concat(running_results, axis=1)
     final_results['avg'] = final_results.mean(axis=1)
 
-    final_results.to_csv('../../results/temp.csv')
+    final_results.to_csv('../../results/logreducer.csv')
     print(final_results)

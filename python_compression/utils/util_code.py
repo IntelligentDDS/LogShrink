@@ -22,6 +22,7 @@ def list_write(file_path, li, append=False):
     
 def isnumeric(array):
     try:
+        # array.astype(int)
         array.astype(int)
         return True
     except:

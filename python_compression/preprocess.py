@@ -23,6 +23,9 @@ def lr_log_parsing(
                 input_path="",
                 outdir="",
                 template_path=""):
+    
+    print("step 2.1: log parsing... {}".format(input_path))
+
     filename = input_path.split("/")[-1].split('.')[0]
     input_dir = os.path.dirname(input_path)
     input_dir += '/'
@@ -37,18 +40,17 @@ def read_parsing_result(input_dir="",
                 ds="",
                 template_path=""):
     
-    print("Step 2.2.1, log matching, parsing file: %s" % input_dir)
+    print("Step 2.2, log matching, parsing file: %s" % input_dir)
     t1 = time.time()
-    
     header_list = []
-    for i in os.listdir(input_dir):
-        if i.endswith("head"):
-            header = read_col(os.path.join(input_dir, i))
-            header_list.append(header)
-            del header
+    files = [i for i in os.listdir(input_dir) if i.endswith("head")]
+    files = sorted(files)
+    for i in files:
+        header = read_col(os.path.join(input_dir, i))
+        header_list.append(header)
+        del header
             
     header_df = pd.concat(header_list, axis=1)
-    
     eids_df, df_var = read_var(os.path.join(input_dir, "var.var"))
     log_meta = LogMeta(headers=header_df.values, eids=eids_df.values, var_list=df_var.values)
 
@@ -83,8 +85,7 @@ def read_var(filename: str):
 
 
 def get_logsequence(series: pd.Series, h=50):
-    print("Step 2.2.2, get log sequence list")
-    t1 = time.time()
+    print("Step 2.3, get log sequence list")
 
     sequences_list = []
     i = 0
@@ -98,18 +99,17 @@ def get_logsequence(series: pd.Series, h=50):
 
     log("info", "Total length is %d, cut into %d sequences" %
           (series.shape[0], len(sequences_list)))
-    # print("Step 1. took %.3f s" % (time.time() - t1))
 
     return sequences_list
 
-def get_diff_df(df: pd.DataFrame()):
-    if df.shape[0] == 0 or df.shape[1] == 0:
-        return df
-    df = df.astype(int)
-    diff = np.diff(df, axis=1)
-    diff = np.hstack((df[:,0].reshape(-1,1), diff))
-    diff = diff.astype(int)
-    return diff
+# def get_diff_df(df: pd.DataFrame()):
+#     if df.shape[0] == 0 or df.shape[1] == 0:
+#         return df
+#     df = df.astype(int)
+#     diff = np.diff(df, axis=1)
+#     diff = np.hstack((df[:,0].reshape(-1,1), diff))
+#     diff = diff.astype(int)
+#     return diff
 
 
 def log_parsing(
@@ -144,14 +144,12 @@ def preprocess(
                    template_path=template_path)
     # keep processing failed log
     os.system("mv {}/*failed.log {}".format(temp_dir, outdir))
-    # 1. log parsing
+    # 2. read parsing result
     log_meta = read_parsing_result(input_dir=temp_dir,
                 ds=ds,
                 template_path=template_path)
     # rm template dir
     shutil.rmtree(temp_dir)
-    # 2. cut into fixed-length log sequences
+    # 3. cut into fixed-length log sequences
     seq_list = get_logsequence(log_meta.eids, h=h)
-    # if log_meta.header_num.shape[0] != 0:
-    #     log_meta.header_num = get_diff_df(log_meta.header_num)
     return log_meta, seq_list

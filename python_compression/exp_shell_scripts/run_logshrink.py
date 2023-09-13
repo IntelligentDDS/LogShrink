@@ -13,11 +13,11 @@ systems = [
     'Zookeeper'
 ]
 
-systems = ['Android', 'Apache', 'BGL', 'Hadoop', 'HealthApp', 'HPC',
+systems = ['Android', 'Apache', 'Hadoop', 'HealthApp', 'HPC',
     'Linux', 'Mac', 'OpenSSH', 'OpenStack', 'Proxifier', 
     'Zookeeper'
 ]
-systems = ['OpenStack']
+systems = ['Apache', 'Hadoop']
 # systems = ["Android", "HDFS", "Spark"]
 
 header_length = {
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     
     command = " -E " + encode_mode + " -K " + kernel + ' -wh ' + str(h) + " -th " + str(threshold) + " -NC " + str(n_candidates) + " -mt " + str(mt)
     out_dir += '_' + encode_mode + '_' + kernel + '_' + str(h) + '_' + str(threshold) + '_' + str(n_candidates) + "_" + str(mt)
-    command += " -I " + indir
+
     if column_mode:
         command += " -C "
         out_dir += '_C_'
@@ -148,12 +148,14 @@ if __name__ == '__main__':
     if sequence_sampling:
         command += " -S "
         out_dir += '_S_'
-        
+    outfile  = command
+    
+    command += " -I " + indir
     
     results = list()
     print("====================LogShrink Testing=================")
     
-    epoch = 10
+    epoch = 1
     
     for i in range(epoch):
         print(f"**** Epoch {i + 1} ****")
@@ -172,5 +174,4 @@ if __name__ == '__main__':
         results.append(pd.Series(epoch_res, name=f'R_{i}'))
         
     df = pd.concat(results, axis=1)
-    
-    df.to_csv('../results/logshrink_' + command + '.csv')
+    df.to_csv('../results/logshrink_' + outfile + '.csv')

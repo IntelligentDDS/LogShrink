@@ -14,14 +14,14 @@ import multiprocessing as mp
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 
 
-from compression.dictionary_encoding import *
+# from compression.dictionary_encoding import *
 from compression.compress import *
 from preprocess import *
 from utils.metrics import *
 from utils.Logger import *
 from utils.util_code import *
 from utils.config import Config
-from pattern_extraction.clustering_sampling import *
+from python_compression.sampler.clustering_sampling import *
 import logshrink
 lock = threading.RLock()
 gl_threadTotTime = 0
@@ -304,11 +304,12 @@ if __name__ == "__main__":
 
     print("Step2: Segmenting finished. ")
     # ThreadPool to Proc Files
-    # threadsToExecTasks(ds, all_files, now_input_dir, compress_outdir, temp_path, template_path)
+    threadsToExecTasks(ds, all_files, now_input_dir,
+                       compress_outdir, temp_path, template_path)
 
     # test
-    procFiles(ds, 0, len(all_files) - 1, now_input_dir,
-              compress_outdir, temp_path, template_path)
+    # procFiles(ds, 0, len(all_files) - 1, now_input_dir,
+    #   compress_outdir, temp_path, template_path)
 
     cmd = "mv {}*/*{} {}".format(temp_path, suffix, compress_outdir)
     print(cmd)
@@ -324,7 +325,7 @@ if __name__ == "__main__":
     print("{} Main finished, total time cost: {} , error num: {}".format(
         compress_outdir, time2 - time_t1, gl_errorNum))
 
-    os.system("rm {} -rf".format(temp_path))
+    os.system("rm -rf {} ".format(temp_path))
 
     compression_speed = compress_speed(input_file, time2 - time_t1)
     cr = calculate_compression_ratio_path(input_file, compress_outdir)

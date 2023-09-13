@@ -51,18 +51,19 @@ make
 
 # run the compression part given a series of paramters. 
 cd ..
-python3 run.py -I ../test_logs/ -ds Linux -E E -C -K lzma -V -P -wh 50 -th 10 -NC 16 -S -outdir ./out/out
+python3 run.py -I ../test_logs/ -ds Linux -E E -C -K lzma -V -P -wh 50 -th 10 -NC 16 -S -outdir ./out/out -T ./templates
 ```
 - The corresponding decompression command:
 ```
 # run the decompression part given a series of parameters
-python3 decompress.py -I ./out/out -K lzma -O ./out/decompress 
+cd decompression
+python3 decompress_run.py -E E -K lzma -I ../out/out/Linux/ -T ../template/ -O ./restore_results
 ```
 - More explanations of parameters:
   
 ```
 python3 run.py -h
-python3 decompression.py -h
+python3 decompression_run.py -h
 ```
 
 

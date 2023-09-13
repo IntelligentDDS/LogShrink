@@ -1,16 +1,23 @@
+# adapt from logreducer https://github.com/THUBear-wjy/LogReducer
+
+
 import argparse
+from collections import defaultdict
 import re
 import os
 import time
-import util
 import sys
 import json
 from subprocess import call
+
+
+from decompress import *
+sys.path.append("../")
+
+from utils import util_code
+
 splitregex = re.compile(r'(\s+|:|<\*>|,|=)')
 
-_TemplateLevel = 0
-_DiffLevel = 1
-_EncoderLevel = 2
 
 def load_tempaltes(template_path):
     Template_file = open(template_path,encoding="ISO-8859-1")
@@ -38,12 +45,9 @@ def load_tempaltes(template_path):
             now_template.append('\n')
         for n, s in enumerate(splitregex.split(line.strip())):
             if (s == "<*>"):
+                # store the variable index
                 now_index.append(n)
             now_template.append(s)
-    # num = num + 1
-    # Templates[num] = now_template
-    # Index[num] = now_index
-    #print(Templates[19])
     return Templates, Index
 
 
@@ -83,44 +87,27 @@ def get_info(head_path):
         headDelimer.append(fo.readline()[0:-1])
     return headLength, isMulti, headRegex, headType, headFormat, headString, headNumber, headDelimer
     
-def restore_heads(path, tempalte_path, level_msg):
-    def restore_diff(array,is_diff):
-        if not is_diff:
-            return array
-        new_array = []
-        new_array.append(array[0])
-        now_size = array[0]
-        for n in range(1, len(array)):
-            now_size += array[n]
-            new_array.append(now_size)
-        return new_array
-   
-    def restore_dict(array, dict):
-        new_array = []
-        for i in array:
-            new_array.append(dict[i])
-        return new_array
     
-    def build_dict(array):
-        dic = dict()
-        for idx, a in enumerate(array):
-            dic[idx] = a
-        return dic
+def restore_elastic_encoder(path, suffixs):
+    for file in os.listdir(path):
+        for suffix in suffixs:
+            if file.endswith(suffix):
+                new_path = elastic_decoder(filename=os.path.join(path, file))
+                
+    
 
-    def getValue():
+def restore_heads(path, tempalte_path, relations):
+
+    def getValue(dic):
         headValue = {}
-        numSize = 0
-        for i in range(0, headLength):
-            if (headType[i][0] == 1 and headType[i][1] == 0): #Only string
-                headValue[numSize] = restore_diff(util.load_array(util.decoder(path + "Head" + str(numSize) + ".head", is_encoder)), is_diff)
-                numSize += 1
-                continue
-            for t in range(0, headType[i][1]): #Number and string
-                headValue[numSize] = restore_diff(util.load_array(util.decoder(path + "Head" + str(numSize)  + ".head",is_encoder)), is_diff)
-                numSize += 1
+        files = [file for file in os.listdir(path) if re.search(r'head_var_col\d+.', file)]
+        files = sorted(files)
+        for i in range(0, len(files)):
+            curValue = recover_file(os.path.join(path, files[i]), dic)
+            headValue[i] = curValue
         return headValue
     
-    def pendding(num, length):
+    def pending(num, length):
         if length == -1:
             return str(num)
         else:
@@ -129,12 +116,14 @@ def restore_heads(path, tempalte_path, level_msg):
                 temp = "0" + temp
             return temp
         
-    is_diff = level_msg[_DiffLevel]
-    is_encoder = level_msg[_EncoderLevel]
     headLength, isMulti, headRegex, headType, headFormat, headString, headNumber, headDelimer = get_info(os.path.join(template_path, "head.format"))
-    print(headType)
-    HeadDict = build_dict(util.load_array(os.path.join(path,"Header_dictionary.headDict"), False))
-    HeadValue = getValue()
+    # print(headType)
+    
+    HeadDict = load_dict(os.path.join(path,"header.dict"))
+    tmpValue = getValue(HeadDict)
+    # concatenate patterns
+    HeadValue = recover_pat(relations['h_pat'], tmpValue)
+    
     totLength = len(HeadValue[0])
     for key in HeadValue.keys():
         assert(len(HeadValue[key]) == totLength)
@@ -144,11 +133,7 @@ def restore_heads(path, tempalte_path, level_msg):
     #Restore each part
     for i in range(0, headLength):
         if (headType[i][0] == 1 and headType[i][1] == 0):
-            print(i)
-            print(now_num)
-            #print(HeadValue[8])
-            part = restore_dict(HeadValue[now_num], HeadDict)
-            Heads = [Heads[t] + part[t] + headDelimer[i] for t in range(0, totLength)]
+            Heads = [Heads[t] + HeadValue[now_num][t] + headDelimer[i] for t in range(0, totLength)]
             now_num += 1
             continue
         now_format = headFormat[i]
@@ -156,7 +141,7 @@ def restore_heads(path, tempalte_path, level_msg):
         while fidx < len(now_format):
             if (now_format[fidx] == '%' and now_format[fidx+1] == 'd'): #Num
                 try:
-                    Heads = [Heads[t] + pendding(HeadValue[now_num][t],headNumber[now_num]) for t in range(0, totLength)]
+                    Heads = [Heads[t] + pending(HeadValue[now_num][t], headNumber[now_num]) for t in range(0, totLength)]
                 except:
                     print("now_num:{}, len(headValue):{}, len(Heads):{}, len(headValue):{}, tot_length:{}, len(headNumber): {}".format(now_num, len(HeadValue), len(Heads),len(HeadValue[now_num]), totLength, len(headNumber)))
                     exit(-1)
@@ -166,45 +151,29 @@ def restore_heads(path, tempalte_path, level_msg):
                 Heads = [Heads[t] + now_format[fidx] for t in range(0, totLength)]
                 fidx += 1
         Heads = [Heads[t] + headDelimer[i] for t in range(0, totLength)]
-    return Heads, [isMulti, headRegex]
+    return Heads, [isMulti, headRegex]    
 
-def restore_variables(template_path, file_path, tid, level): #Restore varibales for each template
-    variables = {}
-    template_level = level[_TemplateLevel]
-    is_encoder = level[_EncoderLevel]
+def restore_variables(path, relations): #Restore varibales for each template
+    var_list = defaultdict(dict)
+    # build dict
+    var_dict = load_dict(os.path.join(path, "var.dict"))
     
-    def get_str_variables(strVariables, variables):
-        for var in strVariables:
-            if (not os.path.exists(file_path + tid + "_" + var + ".str")):
-                print("File:{} does not exist".format(file_path + tid + "_" + var + ".str"))
-                return variables
-            lines = util.load_array(file_path + tid + "_" + var + ".str", False)
-            variables[var] = lines
-    
-    def get_num_variables(numVariables, variables):
-        for var in numVariables:
-            if (not os.path.exists(file_path + tid + "_" + var + ".dat")):
-                print("File:{} does not exist".format(file_path + tid + "_" + var + ".dat"))
-                return variables
-            array = util.load_array(util.decoder(file_path + tid + "_" + var + ".dat", is_encoder), False)
-            variables[var] = array
+    # get file list
+    files = [f for f in os.listdir(path) if re.search(r'var_list_', f)]
+    files = sorted(files)
+    # import pdb; pdb.set_trace()
+    for f in files:
+        var = recover_file(os.path.join(path, f), var_dict)
+        id_res = re.search(r'var_list_E(\d+)_(\d+)', f)
+        tid = int(id_res.group(1))
+        vid = int(id_res.group(2))
+        var_list[tid][vid] = var
+    # concatenate from relations
+    for tid in var_list.keys():
+        var_list[tid] = recover_pat(relations['v_pat'][str(tid)], var_list[tid])
+    # import pdb; pdb.set_trace()
+    return var_list
         
-    #Read basic rules
-    basicRules = util.load_array(os.path.join(template_path, tid + "basic.rule"), False)
-    [v_tot, n_tot, s_tot] = basicRules[0].split()
-    numVariables = []
-    strVariables = []
-    if (int(v_tot) == 0):
-        return variables 
-    if (int(n_tot) != 0):
-        numVariables = basicRules[1].split()
-    if (int(s_tot) != 0):
-        strVariables = basicRules[2].split()
-    #String variables
-    get_str_variables(strVariables, variables)
-    #Numerial variables
-    get_num_variables(numVariables, variables)
-    return variables
     
 
 
@@ -212,13 +181,12 @@ def load_log(path, head_msg):
     Logs = []
     if (head_msg[0] == 1): #Is multiline
         headregex = re.compile(head_msg[1])
-    lines = util.load_log(path)
-#    lines = util.load_array(path, False)
+    lines = load_str_array_raw(path)
+    
     now_line = ""
     start = True 
-    #print(len(lines))
-    for line in lines:
-        lined = line.decode()
+    
+    for lined in lines:
         if (head_msg[0] != 1 or headregex.search(lined)):
             if (start):
                 start = False
@@ -228,16 +196,12 @@ def load_log(path, head_msg):
             Logs.append(now_line)
             now_line = lined.strip()
         else:
-            #print("read failed at: " + lined + " Now line is" + now_line)
-            #print(line)
             if (start):
                 Logs.append(lined.strip())
                 continue
             if (lined == "\n"):
                 Logs.append(now_line)
                 Logs.append(lined.strip())
-                #print("append now line at: " + now_line + " lined at: ")
-                #Logs.append(now_line)
                 start = True
                 continue
             
@@ -250,67 +214,47 @@ def load_log(path, head_msg):
 if __name__ == "__main__":
     #Target, success restore 0-D-Z state
     parser = argparse.ArgumentParser()
-    parser.add_argument("--Input", "-I", help="The input .7z file")
+    parser.add_argument("--Input", "-I", help="The input compressed file")
+    parser.add_argument("--Kernel", "-K", help="The kernel of the zip tool")
     parser.add_argument("--Output", "-O", default="./restore_result/", help="The output path of the restored log file")
     parser.add_argument("--Template", "-T",  help="The template path")
     parser.add_argument("--Temp", "-t", default="./temp/", help="The temp output path")
-    parser.add_argument("--TemplateLevel", "-TL", default="0", choices=["0","N"], help="The level of tempalte")
-    parser.add_argument("--DiffLevel", "-D", default="D", choices=["ND", "D"], help="The level of diff")
-    parser.add_argument("--EncoderLevel", "-E", default="Z", choices=["NZ", "Z"], help="The level of encoder")
     args = parser.parse_args()
 
     template_path = args.Template
     input_path = args.Input
     output_path = args.Output
     temp_path = args.Temp
-    
-    #level_msg -> [TemplateLevel, DiffLevel, EncoderLevel]
-    level_msg = []
-    if (args.TemplateLevel == "N"):
-        level_msg.append(True)
-    else:
-        level_msg.append(False)
-    if (args.DiffLevel == "D"):
-        level_msg.append(True)
-    else:
-        level_msg.append(False)
-    if (args.EncoderLevel == "Z"):
-        level_msg.append(True)
-    else:
-        level_msg.append(False)
-    
-    print(level_msg)
+    kernel = args.Kernel
 
-
-    if (not os.path.exists(temp_path)):
-        os.mkdir(temp_path)
-    else:
-        call("rm -rf " + temp_path, shell=True)
-        os.mkdir(temp_path)
+    # output_path = os.path.join(output_dir, os.path.splitext(os.path.basename(input_path))[0])
+    util_code.mkdir(temp_path)
+    # util_code.mkdir(output_path)
     
-    #Load templates
-    Templates, Index = load_tempaltes(os.path.join(template_path, "template.col"))
-    #print(Templates)
-    #print(Index)
+    # Load templates
+    Templates, Index = load_tempaltes(os.path.join(template_path, "template.col"))    
     
-    #Decompression into temp 
-    call("7za x " + input_path + " -o" + temp_path, shell=True)
+    # 1. Use unzip tool to extract all files
+    unzip_tool(kernel=kernel, input_file=input_path, output_dir=temp_path)   
     
-    #Restore Head
-    Heads, head_msg = restore_heads(temp_path, template_path, level_msg)
-    #print(Heads[0:100])
+    # 2. Restore compresseed files by leveraging commonality and variability  
+    relations = load_relations(relation_file=os.path.join(temp_path, "relations"))
     
-    #Restore individual templates variables
-    Varibales = dict()
-    for key in Templates.keys():
-        #print(key)
-        Varibales[key] = restore_variables(template_path, temp_path, "E" + str(key), level_msg)
-    #print(Varibales[1])
+    # print(relations)
+    # 3. restore elastic code
+    restore_elastic_encoder(path=temp_path, suffixs=['ee'])
     
-    #Load load_failed log
+    
+    # 4. Restore Head
+    Heads, head_msg = restore_heads(path=temp_path, tempalte_path=template_path, relations=relations)
+    
+    # 5. Restore individual templates variables
+    var_list = restore_variables(path=temp_path, relations=relations)
+    
+    #6. Load load_failed log
     LoadFailed = load_log(os.path.join(temp_path, "load_failed.log"), head_msg)
     
-    #Load match_failed log
+    #7. Load match_failed log
     MatchFailed = load_log(os.path.join(temp_path, "match_failed.log"), head_msg)
     
     print("Load failed #: {}, Match failed #:{}".format(len(LoadFailed), len(MatchFailed)))
@@ -318,44 +262,46 @@ if __name__ == "__main__":
     match_idx = 0
     load_idx = 0
     head_idx = 0
-    template_idx = {}
-    for t in Templates.keys():
-        template_idx[t] = 0
+    template_idx = defaultdict(lambda: 0)
 
-    Eids = util.load_array(util.decoder(os.path.join(temp_path,"Eid.eid"), level_msg[_EncoderLevel]))
+    Eids = load_int_array(os.path.join(temp_path,"eids.eid"))
+    
+    eids_len = len(Eids)
+    assert eids_len == len(LoadFailed) + len(MatchFailed) + len(Heads)
+    
     fw = open(output_path, "wb")
     for eid in Eids:
-        if (eid == -1):
+        # load failed
+        if eid == -1:
             fw.write((LoadFailed[load_idx] + '\n').encode())
-            #print(load_idx)
             load_idx += 1
             continue
-        if (eid == 0):
-            #try:
+        # match failed
+        if eid == 0:
             fw.write((MatchFailed[match_idx] + '\n').encode())
-            #except:
-            #print("tot length: {}, match index: {}".format(len(MatchFailed), match_idx))
             match_idx += 1
             continue
         
-        #Fill up
+        # normal parsing result
         head = Heads[head_idx]
         head_idx += 1
         template = Templates[eid]
-        variables = Varibales[eid]
+        variables = var_list[eid]
         now_idx = template_idx[eid]
         now_var = 0
-        fs = head
+        buf = head
 
+        # fill blank inline
         for s in template:
             if (s == "<*>"):
-                fs += str(variables[str(now_var)][now_idx])
+                buf += str(variables[now_var][now_idx])
                 now_var += 1
             else:
-                fs += s
-        fw.write((fs + '\n').encode())
+                buf += s
+        
+        fw.write((buf + '\n').encode())
         template_idx[eid] += 1
-
+    assert eids_len == head_idx + load_idx + match_idx
     fw.close()
     #Clean up
-    #call("rm -rf " + temp_path + "*", shell=True)
+    call("rm -rf " + temp_path, shell=True)
