@@ -1,6 +1,6 @@
 # LogShrink: An Effective Log Compression Tool
 
-The repository is the implementation of paper in ICSE 2024 (early) "LogShrink: Effective Log Compression by Leveraging Commonality and Variability of Log Data".
+The repository is the implementation of paper in ICSE 2024 (early) "LogShrink: Effective Log Compression by Leveraging Commonality and Variability of Log Data". [Preprint Paper](https://arxiv.org/abs/2309.09479)
 
 By Xiaoyun Li, Hongyu Zhang, Van-Hoang Le, Pengfei Chen
 
@@ -115,5 +115,12 @@ We show the overall performance of LogShrink here.
 If you find the code and models useful for your research, please cite the following paper:
 
 ```
-
+@misc{li2023logshrink,
+      title={LogShrink: Effective Log Compression by Leveraging Commonality and Variability of Log Data}, 
+      author={Xiaoyun Li and Hongyu Zhang and Van-Hoang Le and Pengfei Chen},
+      year={2023},
+      eprint={2309.09479},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE}
+}
 ```
