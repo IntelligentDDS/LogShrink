@@ -36,6 +36,7 @@ We use 16 representative log datasets from [loghub](https://zenodo.org/record/32
 #### Environment Requirements
 - python >=3.8
 - gcc>=9.4.0
+- 7zip, https://www.7-zip.org/download.html
 
 Python package requirements can be installed by `pip install -r requirements.txt`
 
