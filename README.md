@@ -116,12 +116,12 @@ We show the overall performance of LogShrink here.
 If you find the code and models useful for your research, please cite the following paper:
 
 ```
-@misc{li2023logshrink,
-      title={LogShrink: Effective Log Compression by Leveraging Commonality and Variability of Log Data}, 
-      author={Xiaoyun Li and Hongyu Zhang and Van-Hoang Le and Pengfei Chen},
-      year={2023},
-      eprint={2309.09479},
-      archivePrefix={arXiv},
-      primaryClass={cs.SE}
+@inproceedings{li2023logshrink,
+  title={LogShrink: Effective Log Compression by Leveraging Commonality and Variability of Log Data},
+  author={Li, Xiaoyun and Zhang, Hongyu and Le, Van-Hoang and Chen, Pengfei},
+  booktitle={2024 IEEE/ACM 46th International Conference on Software Engineering (ICSE)},
+  pages={243--254},
+  year={2023},
+  organization={IEEE Computer Society}
 }
 ```
